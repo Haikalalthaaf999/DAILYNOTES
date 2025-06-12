@@ -17,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       final prefs = await SharedPreferences.getInstance();
       try {
-        await prefs.setInt('user_id', 1); // Ganti dengan ID dari database
+        await prefs.setInt('user_id', 1); 
         await prefs.setString('user_name', name);
         await prefs.setString('user_job', job);
         await prefs.setString('user_email', email);

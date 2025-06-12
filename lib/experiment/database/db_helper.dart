@@ -28,7 +28,6 @@ class DBHelper {
   Future<Database> _initDB() async {
     // path untuk file database menggunakan getDatabasesPath dan join
     final path = join(await getDatabasesPath(), 'daily_notes.db');
-    // Buka database dengan nama 'daily_notes.db' dan versi 1
     return openDatabase(
       path,
       version: 1,
