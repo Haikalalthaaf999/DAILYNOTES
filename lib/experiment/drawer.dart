@@ -1,6 +1,4 @@
-// lib/experiment/drawer.dart
 import 'package:dailynotes/experiment/login.dart';
-// import 'package:dailynotes/experiment/model/note.dart';
 import 'package:dailynotes/experiment/note_screen.dart';
 import 'package:dailynotes/experiment/profile.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +17,6 @@ class DrawerBar extends StatelessWidget {
     );
     return {'name': userName, 'job': userJob, 'email': userEmail};
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +33,11 @@ class DrawerBar extends StatelessWidget {
         final userData = snapshot.data!;
         return Drawer(
           child: Container(
-            color: const Color(0xffF3A26D),
+            color: Color(0xffC39BEF), 
             child: Column(
               children: [
                 Container(
-                  color: const Color(0xFF00809D),
+                  color: Color(0xff804CF6), 
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
@@ -49,7 +46,7 @@ class DrawerBar extends StatelessWidget {
                         child: const CircleAvatar(
                           radius: 35,
                           backgroundImage: AssetImage(
-                            'assets/images/kocheng.jpg',
+                            'assets/images/pro.jpg',
                           ),
                         ),
                       ),
@@ -80,34 +77,45 @@ class DrawerBar extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.home, color: Colors.white),
+                  leading: const Icon(
+                    Icons.home,
+                    color: Color(0xffC6E774),
+                  ), // Ikon hijau neon
                   title: const Text(
                     'Home',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Color(0xffC6E774)),
                   ),
                   onTap: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => NotesScreen()),
-                    ); 
+                    );
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.person, color: Colors.white),
+                  leading: const Icon(
+                    Icons.person,
+                    color: Color(0xffA12432),
+                  ), // Ikon hijau tua
                   title: const Text(
                     'Profile',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Color(0xffA12432)),
                   ),
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ProfileScreen())); 
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    );
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.logout, color: Color(0xffFFE6C7)),
+                  leading: const Icon(
+                    Icons.logout,
+                    color: Color(0xffFFC107),
+                  ), // Ikon kuning cerah
                   title: const Text(
                     "Logout",
-                    style: TextStyle(color: Color(0xffFFE6C7)),
+                    style: TextStyle(color: Color(0xffFFC107)),
                   ),
                   onTap: () async {
                     final prefs = await SharedPreferences.getInstance();

@@ -33,89 +33,167 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffC39BEF), 
       appBar: AppBar(
         title: Text(
-          'Profile',
-          style: GoogleFonts.poppins(
-            fontSize: 25,
-            color: Color(0xffFCECDD)
-            ),
+          '',
+          style: GoogleFonts.poppins(fontSize: 20, color: Colors.white),
         ),
-        centerTitle: true,
-        backgroundColor: Color(0xff00809D),
+        backgroundColor: Color(0xff804CF6), 
       ),
-      drawer: DrawerBar(),
+      drawer: const DrawerBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Foto Cover dengan penanganan error
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/cover.jpg'),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // Foto Profil
-                  Positioned(
-                    left: 16,
-                    bottom: -3,
-                    child: CircleAvatar(
-                      radius: 55,
-                      backgroundImage: AssetImage('assets/images/kocheng.jpg'),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: const AssetImage('assets/images/eva.jpg'),
+                      fit: BoxFit.cover,
+                      onError:
+                          (exception, stackTrace) =>
+                              const AssetImage('assets/images/fallback.jpg'),
                     ),
                   ),
-                ],
-              ),
+                ),
+                Positioned(
+                  left: 16,
+                  top: 125,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Color(
+                          0xffC39BEF,
+                        ), // Border foto profil (ungu muda)
+                        width: 4.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: const AssetImage(
+                        'assets/images/pro.jpg',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            // Padding setelah cover
+            SizedBox(height: 45),
             Padding(
-              padding: EdgeInsets.all(16).copyWith(top: 60),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nama dan Pekerjaan
-                  Text(
-                    userName,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white, // Teks putih untuk kontras
+                            ),
+                          ),
+                          Text(
+                            userJob,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Color(0xffFFFEFE), 
+                            ),
+                          ),
+                          Text(
+                            userEmail,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Color(0xffFFFEFE), 
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    userJob,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(
+                              0xffC6E774,
+                            ), // Tombol (hijau neon)
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.edit,
+                                color: Color(0xff4A2C5A),
+                                size: 16,
+                              ), // Ungu tua
+                              SizedBox(width: 4),
+                              Text(
+                                'Edit profile',
+                                style: TextStyle(
+                                  color: Color(0xff4A2C5A),
+                                ), // Ungu tua
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(
+                            0xffC6E774,
+                          ), // Tombol (hijau neon)
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.more_horiz,
+                              color: Color(0xff4A2C5A), // Ungu tua
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 16),
-                  // Statistik (Postingan dan Followers)
-                  Divider(),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Color(0xffF2C078),
+                      color: Color(0xffF5C024), 
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      "Nama Saya Haikal, saat ini saya sedang belajar menjadi mobile programer. "
-                      "Saya mempunyai hobi mendengarkan lagu, saya juga mempunyai hobi bermain game. "
-                      "Saya suka berolahraga, terutama lari dan renang.",
-                      style: TextStyle(
+                      "Nama saya Haikal, saat ini saya sedang belajar menjadi mobile programmer. Saya mempunyai hobi mendengarkan lagu, saya juga mempunyai hobi bermain game. Saya suka berolahraga, terutama lari dan renang.",
+                      style: GoogleFonts.poppins(
                         fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        color: Color(0xff4A2C5A),
                       ),
                     ),
                   ),
-
-                  SizedBox(height: 16),
                 ],
               ),
             ),

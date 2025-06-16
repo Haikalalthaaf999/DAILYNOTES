@@ -45,7 +45,7 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
           style: TextStyle(color: Color(0xffFCECDD)),
         ),
         centerTitle: true, // Judul diposisikan di tengah
-        backgroundColor: Color(0xff00809D), // Warna latar AppBar
+        backgroundColor: Color(0xff804CF6), // Warna latar AppBar
       ),
       // Body dengan SingleChildScrollView agar konten bisa digulir
       body: SingleChildScrollView(

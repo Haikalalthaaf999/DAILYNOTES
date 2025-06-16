@@ -12,7 +12,9 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  // Daftar untuk menyimpan catatan pengguna.
+  // Daftar untuk menyimpan semua catatan (sebelum difilter)
+  List<Note> allNotes = [];
+  // Daftar untuk menyimpan catatan yang ditampilkan (setelah difilter)
   List<Note> notes = [];
   // ID pengguna default, digunakan untuk mengambil catatan spesifik pengguna
   int userId = 1;
@@ -23,84 +25,94 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    // Panggil _loadUserAndNotes saat widget diinisialisasi untuk memuat ID pengguna dan catatan
+    // Panggil _loadUserAndNotes saat widget diinisialisasi
     _loadUserAndNotes();
+  }
+
+  @override
+  void dispose() {
+    // Bersihkan controller saat widget dihancurkan
+    titleController.dispose();
+    contentController.dispose();
+    super.dispose();
   }
 
   // Fungsi untuk memuat ID pengguna dari SharedPreferences dan mengambil catatan pengguna
   Future<void> _loadUserAndNotes() async {
-    // Ambil instance SharedPreferences untuk mengakses data pengguna yang tersimpan
     final prefs = await SharedPreferences.getInstance();
-    // Ambil ID pengguna dari SharedPreferences, gunakan -1 jika tidak ditemukan
     userId = prefs.getInt('user_id') ?? -1;
-    // Muat catatan pengguna dari database
     await _loadNotes();
   }
 
   // Fungsi untuk mengambil catatan dari database dan memperbarui state
   Future<void> _loadNotes() async {
-    // Ambil catatan untuk pengguna saat ini dari database menggunakan DBHelper
     final data = await DBHelper().getUserNotes(userId);
-    // Perbarui state dengan catatan yang diambil, memicu pembaruan UI
-    setState(() => notes = data);
+    setState(() {
+      allNotes = data; // Simpan semua catatan
+      notes = List.from(allNotes); // Inisialisasi notes dengan semua catatan
+    });
   }
 
   // Fungsi untuk menampilkan dialog untuk menambah atau mengedit catatan
   void _showNoteDialog({Note? note}) {
-    // Jika mengedit catatan yang sudah ada, isi controller dengan data catatan
     if (note != null) {
       titleController.text = note.title;
       contentController.text = note.content;
     } else {
-      // Jika menambah catatan baru, kosongkan controller
       titleController.clear();
       contentController.clear();
     }
 
-    // Tampilkan AlertDialog untuk menambah atau mengedit catatan
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            // Atur judul dialog berdasarkan apakah menambah atau mengedit
-            title: Text(note == null ? 'Tambah Catatan' : 'Edit Catatan'),
+            backgroundColor: Color(0xffA976C3),
+            title: Text(
+              note == null ? 'Tambah Catatan' : 'Edit Catatan',
+              style: TextStyle(color: Color(0xff5CCB55)),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Kolom teks untuk memasukkan judul catatan
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Judul'),
+                  decoration: const InputDecoration(
+                    labelText: 'Judul',
+                    labelStyle: TextStyle(color: Color(0xff5CCB55)),
+                  ),
                 ),
-                // Kolom teks untuk memasukkan isi catatan
                 TextField(
                   controller: contentController,
-                  decoration: const InputDecoration(labelText: 'Isi'),
+                  decoration: const InputDecoration(
+                    labelText: 'Isi',
+                    labelStyle: TextStyle(color: Color(0xff5CCB55)),
+                  ),
                 ),
               ],
             ),
             actions: [
-              // Tombol batal untuk menutup dialog tanpa menyimpan
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(color: Color(0xffF5C024)),
+                ),
               ),
-              // Tombol simpan untuk menyimpan atau memperbarui catatan di database
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xffF5C024),
+                ),
                 onPressed: () async {
-                  // Ambil teks yang sudah di-trim dari controller
                   final title = titleController.text.trim();
                   final content = contentController.text.trim();
-                  // Jika judul atau isi kosong, jangan lakukan apa-apa
                   if (title.isEmpty || content.isEmpty) return;
 
-                  // Jika menambah catatan baru, masukkan ke database
                   if (note == null) {
                     await DBHelper().insertNote(
                       Note(userId: userId, title: title, content: content),
                     );
                   } else {
-                    // Jika mengedit, perbarui catatan yang ada di database
                     await DBHelper().updateNote(
                       Note(
                         id: note.id,
@@ -111,9 +123,7 @@ class _NotesScreenState extends State<NotesScreen> {
                     );
                   }
 
-                  // Tutup dialog jika widget masih aktif
                   if (mounted) Navigator.pop(context);
-                  // Muat ulang daftar catatan
                   _loadNotes();
                 },
                 child: const Text('Simpan'),
@@ -125,10 +135,16 @@ class _NotesScreenState extends State<NotesScreen> {
 
   // Fungsi untuk menghapus catatan dari database
   void _deleteNote(int id) async {
-    // Hapus catatan dengan ID tertentu menggunakan DBHelper
     await DBHelper().deleteNote(id);
-    // Muat ulang daftar catatan setelah penghapusan
     _loadNotes();
+  }
+
+  // Custom SearchDelegate untuk pencarian catatan
+  void _startSearch() {
+    showSearch(
+      context: context,
+      delegate: NoteSearchDelegate(allNotes, _loadNotes),
+    );
   }
 
   @override
@@ -139,25 +155,28 @@ class _NotesScreenState extends State<NotesScreen> {
           'Catatan Harian',
           style: TextStyle(color: Color(0xffFCECDD)),
         ),
-        backgroundColor: Color(0xff00809D),
+        backgroundColor: Color(0xff804CF6),
+        // Tambahkan ikon pencarian di actions
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Color(0xffFCECDD)),
+            onPressed: _startSearch,
+          ),
+        ],
       ),
       drawer: DrawerBar(),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: GridView.builder(
-          // Jumlah item di grid sesuai dengan jumlah catatan
           itemCount: notes.length,
-          // Tata letak grid dengan 2 kolom, jarak, dan rasio aspek
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
             childAspectRatio: 0.85,
           ),
-          // Bangun setiap item grid (kartu catatan)
           itemBuilder: (_, index) {
             final note = notes[index];
-            // Daftar warna untuk kartu catatan, digunakan secara bergilir
             final colors = [
               Color(0xffFFF7D1),
               Color(0xffFFECC8),
@@ -166,12 +185,9 @@ class _NotesScreenState extends State<NotesScreen> {
               Color(0xffD1D8BE),
               Color(0xffEEEFE0),
             ];
-            // Tentukan warna kartu berdasarkan indeks
             final color = colors[index % colors.length];
 
-            // GestureDetector untuk menangani ketukan pada kartu catatan
             return GestureDetector(
-              // Ketuk untuk membuka dialog edit catatan
               onTap: () => _showNoteDialog(note: note),
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -192,7 +208,6 @@ class _NotesScreenState extends State<NotesScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
-                    // Tampilkan isi catatan, dibatasi 5 baris
                     Expanded(
                       child: Text(
                         note.content,
@@ -202,13 +217,11 @@ class _NotesScreenState extends State<NotesScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Baris untuk tombol edit dan hapus
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Tombol edit untuk navigasi ke EditNoteScreen
                           IconButton(
                             icon: const Icon(
                               Icons.edit,
@@ -216,7 +229,6 @@ class _NotesScreenState extends State<NotesScreen> {
                               color: Colors.black,
                             ),
                             onPressed: () {
-                              // Navigasi ke EditNoteScreen dan kirim catatan
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -224,19 +236,44 @@ class _NotesScreenState extends State<NotesScreen> {
                                       (context) => EditNoteScreen(note: note),
                                 ),
                               ).then((value) {
-                                // Jika layar edit mengembalikan true, muat ulang catatan
                                 if (value == true) _loadNotes();
                               });
                             },
                           ),
-                          // Tombol hapus untuk menghapus catatan
                           IconButton(
                             icon: const Icon(
                               Icons.delete,
                               size: 20,
                               color: Colors.red,
                             ),
-                            onPressed: () => _deleteNote(note.id!),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Konfirmasi Penghapusan'),
+                                    content: const Text(
+                                      'Apakah Anda yakin ingin menghapus?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Batal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          _deleteNote(note.id!);
+                                        },
+                                        child: const Text('Ya'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -248,11 +285,95 @@ class _NotesScreenState extends State<NotesScreen> {
           },
         ),
       ),
-      // Tombol aksi mengambang untuk menambah catatan baru
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xff5F2A62),
         onPressed: () => _showNoteDialog(),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Color(0xff5CCB55)),
       ),
+    );
+  }
+}
+
+// Custom SearchDelegate untuk pencarian catatan
+class NoteSearchDelegate extends SearchDelegate<String> {
+  final List<Note> allNotes;
+  final Future<void> Function() reloadNotes;
+
+  NoteSearchDelegate(this.allNotes, this.reloadNotes);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          showSuggestions(context);
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, ''),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results =
+        allNotes.where((note) {
+          final title = note.title.toLowerCase();
+          final content = note.content.toLowerCase();
+          return title.contains(query.toLowerCase()) ||
+              content.contains(query.toLowerCase());
+        }).toList();
+
+    return _buildSearchResults(results);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions =
+        allNotes.where((note) {
+          final title = note.title.toLowerCase();
+          final content = note.content.toLowerCase();
+          return title.contains(query.toLowerCase()) ||
+              content.contains(query.toLowerCase());
+        }).toList();
+
+    return _buildSearchResults(suggestions);
+  }
+
+  Widget _buildSearchResults(List<Note> results) {
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final note = results[index];
+        return ListTile(
+          title: Text(note.title),
+          subtitle: Text(
+            note.content,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          onTap: () {
+            close(context, '');
+            // Navigasi ke EditNoteScreen untuk edit setelah pencarian
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditNoteScreen(note: note),
+              ),
+            ).then((value) {
+              if (value == true) reloadNotes();
+            });
+          },
+        );
+      },
     );
   }
 }

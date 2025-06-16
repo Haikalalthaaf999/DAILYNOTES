@@ -28,6 +28,7 @@ class DBHelper {
   Future<Database> _initDB() async {
     // path untuk file database menggunakan getDatabasesPath dan join
     final path = join(await getDatabasesPath(), 'daily_notes.db');
+    // Buka database dengan nama 'daily_notes.db' dan versi 1
     return openDatabase(
       path,
       version: 1,
@@ -54,31 +55,31 @@ class DBHelper {
     );
   }
 
-  // Fungsi untuk mendaftarkan pengguna baru
-  Future<int> registerUser(User user) async {
-    // Dapatkan instance database
-    final dbClient = await db;
-    // Masukkan data pengguna ke tabel 'users' dan kembalikan ID yang dihasilkan
-    return await dbClient.insert('users', user.toMap());
-  }
+  // // Fungsi untuk mendaftarkan pengguna baru
+  // Future<int> registerUser(User user) async {
+  //   // Dapatkan instance database
+  //   final dbClient = await db;
+  //   // Masukkan data pengguna ke tabel 'users' dan kembalikan ID yang dihasilkan
+  //   return await dbClient.insert('users', user.toMap());
+  // }
 
-  // Fungsi untuk login pengguna
-  Future<User?> loginUser(String username, String password) async {
-    // Dapatkan instance database
-    final dbClient = await db;
-    // Query tabel 'users' untuk mencari pengguna dengan username dan password yang cocok
-    final result = await dbClient.query(
-      'users',
-      where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
-    );
-    // Jika ditemukan hasil, kembalikan objek User dari data pertama
-    if (result.isNotEmpty) {
-      return User.fromMap(result.first);
-    }
-    // Jika tidak ditemukan, maka null
-    return null;
-  }
+  // // Fungsi untuk login pengguna
+  // Future<User?> loginUser(String username, String password) async {
+  //   // Dapatkan instance database
+  //   final dbClient = await db;
+  //   // Query tabel 'users' untuk mencari pengguna dengan username dan password yang cocok
+  //   final result = await dbClient.query(
+  //     'users',
+  //     where: 'username = ? AND password = ?',
+  //     whereArgs: [username, password],
+  //   );
+  //   // Jika ditemukan hasil, kembalikan objek User dari data pertama
+  //   if (result.isNotEmpty) {
+  //     return User.fromMap(result.first);
+  //   }
+  //   // Jika tidak ditemukan,  null
+  //   return null;
+  // }
 
   // Fungsi untuk menambahkan catatan baru
   Future<int> insertNote(Note note) async {
@@ -107,7 +108,7 @@ class DBHelper {
   Future<int> deleteNote(int id) async {
     // Dapatkan instance database
     final dbClient = await db;
-    // Hapus catatan dari tabel 'notes' berdasarkan ID 
+    // Hapus catatan dari tabel 'notes' berdasarkan ID dan kembalikan jumlah baris yang dihapus
     return await dbClient.delete('notes', where: 'id = ?', whereArgs: [id]);
   }
 
